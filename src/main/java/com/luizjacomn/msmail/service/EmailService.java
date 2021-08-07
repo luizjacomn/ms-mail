@@ -4,6 +4,7 @@ import com.luizjacomn.msmail.enumeration.EmailStatus;
 import com.luizjacomn.msmail.model.Email;
 import com.luizjacomn.msmail.repository.EmailRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -23,7 +25,7 @@ public class EmailService {
         model.setSentAt(LocalDateTime.now());
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
+            var message = new SimpleMailMessage();
             message.setFrom(model.getEmailFrom());
             message.setTo(model.getEmailTo());
             message.setSubject(model.getSubject());
@@ -33,10 +35,10 @@ public class EmailService {
 
             model.setEmailStatus(EmailStatus.SENT);
         } catch (MailException e) {
-            e.printStackTrace();
+            log.error("Erro ao enviar e-mail...", e);
             model.setEmailStatus(EmailStatus.ERROR);
-        } finally {
-            return emailRepository.save(model);
         }
+
+        return emailRepository.save(model);
     }
 }
